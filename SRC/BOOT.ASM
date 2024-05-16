@@ -1,20 +1,12 @@
-; BOOT.ASM
+; BOOT.ASM: The boot routine for DOS.
+; Disassembled as a part of DOS-RE.
 ;
-; The boot routine for DOS. This is loaded onto track 0, sector 1; it was
-; designed to work with the SCP monitor, not the BIOS of the IBM PC. However,
-; it can be configured with little effort to work on an IBM PC or compatible
-; device by changing some of the equates here.
+; This is loaded onto track 0, sector 1; it was designed to work with the SCP
+; monitor, not the BIOS of the IBM PC or compatible devices. However, it can be
+; configured with little effort to work on an IBM PC or a compatible device by
+; changing some of the equates here.
 
-; Constants; DO NOT change these.
-
-SECTSIZE	EQU	80H		; The size of a single sector.
-
-; Choose ONE disk type to target the boot routine for.
-
-CSMALL		EQU	0		; Cromemco 4FDC with small disks
-CLARGE		EQU	1		; Cromemco 4FDC with large disks
-TSING		EQU	0		; Tarbell single-density controller
-TDBL		EQU	0		; Tarbell double-density controller
+%INCLUDE	"CONFIG.ASM"
 
 ; Choose (a) where this bootloader is loaded in memory, and (b) where it should
 ; load the kernel in memory. The defaults are optimized for the SCP monitor, but
@@ -27,33 +19,10 @@ BOOTPOS		EQU	200H		; Where the bootloader is in memory
 
 ; Generic macros formed from combining these configuration options.
 
-CROMEMCO	EQU	CSMALL+CLARGE	; Cromemco disk
-TARBELL		EQU	TSING+TDBL	; Tarbell disk
-
-WD1771		EQU	CROMEMCO+TSING	; WD1771 controller
-WD1791		EQU	TDBL		; WD1971 controller
-
-SMALL		EQU	CSMALL		; Small disk
-LARGE		EQU	CLARGE+TARBELL	; Large disk
-
 		%IF	SMALL
-MAXSECT		EQU	12H		; Sectors per track (Small disks)
+MAXSECT		EQU	12H		; Sectors per read (Small disks)
 		%ELIF	LARGE
-MAXSECT		EQU	1AH		; Sectors per track (Large disks)
-		%ENDIF
-
-		%IF	TARBELL
-DONEBIT		EQU	80H		; Mask to check for DONE (Tarbell)
-DISK		EQU	78H		; I/O port of the disk (Tarbell)
-		%ELIF	CROMEMCO
-DONEBIT		EQU	1H		; Mask to check for DONE (Cromemco)
-DISK		EQU	30H		; I/O port of the disk (Cromemco)
-		%ENDIF
-
-		%IF	WD1771
-READCMD		EQU	88H		; Read command (WD1771)
-		%ELIF	WD1781
-READCMD		EQU	80H		; Read command (WD1791)
+MAXSECT		EQU	1AH		; Sectors per read (Large disks)
 		%ENDIF
 
 		%IF	CLARGE
