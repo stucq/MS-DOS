@@ -121,7 +121,7 @@ READSECT:	IN	AL,DISK+4	; Read from disk
 
 		IN	AL,DISK+3
 		STOSB
-		LOOP	READSECT
+		LOOP	READSECT	; Read to the end of the sector
 
 DONE:		POP	DI
 		CALL	GETSTAT
